@@ -13,6 +13,8 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
+	namespace 'com.playeveryware.eos'
+	
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -24,7 +26,6 @@ android {
     }
 
     compileSdkVersion **APIVERSION**
-    buildToolsVersion '**BUILDTOOLS**'
     defaultConfig {
         targetSdkVersion **TARGETSDKVERSION**
     }

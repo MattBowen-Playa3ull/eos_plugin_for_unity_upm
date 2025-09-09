@@ -222,72 +222,11 @@ namespace PlayEveryWare.EpicOnlineServices.Editor.Build
 #endif
         }
 
-        private static string GetBuildTools()
-        {
-            //  NOTE: The following section is conditionally enabled because otherwise, if the user
-            //        does not have the Android module installed, it will cause build errors.
-#if UNITY_ANDROID
-            var toolsRegex = new Regex(@"(\d+)\.(\d+)\.(\d+)");
-            int maxMajor = 0, maxMinor = 0, maxPatch = 0;
-            //find highest usable build tools version
-            const int highestVersion = 
-#if UNITY_2022_3_OR_NEWER
-            34
-#elif UNITY_2022_2_OR_NEWER
-            32
-#else
-            30
-#endif
-;
-
-            foreach (var dir in Directory.GetDirectories(Path.Combine(AndroidExternalToolsSettings.sdkRootPath,
-                         "build-tools")))
-            {
-                var dirName = Path.GetFileName(dir);
-                var match = toolsRegex.Match(dirName);
-                int majorVersion = 0, minorVersion = 0, patchVersion = 0;
-                bool success = match.Success && match.Groups.Count == 4 &&
-                               int.TryParse(match.Groups[1].Value, out majorVersion) &&
-                               int.TryParse(match.Groups[2].Value, out minorVersion) &&
-                               int.TryParse(match.Groups[3].Value, out patchVersion);
-                if (success)
-                {
-                    if (majorVersion > highestVersion)
-                    {
-                        continue;
-                    }
-
-                    if (majorVersion > maxMajor ||
-                        (majorVersion == maxMajor && minorVersion > maxMinor) ||
-                        (majorVersion == maxMajor && minorVersion == maxMinor && patchVersion > maxPatch))
-                    {
-                        maxMajor = majorVersion;
-                        maxMinor = minorVersion;
-                        maxPatch = patchVersion;
-                    }
-                }
-            }
-
-            if (maxMajor == 0)
-            {
-                return "30.0.3";
-            }
-            else
-            {
-                return $"{maxMajor}.{maxMinor}.{maxPatch}";
-            }
-#else
-            return "NOBUILDTOOLS"; // This should never happen
-#endif
-        }
-
         private static void WriteConfigMacros(string filepath)
         {
             var contents = File.ReadAllText(filepath);
             string apiVersion = GetTargetAPI().ToString();
-            string buildTools = GetBuildTools();
-            string newContents = contents.Replace("**APIVERSION**", apiVersion)
-                .Replace("**TARGETSDKVERSION**", apiVersion).Replace("**BUILDTOOLS**", buildTools);
+            string newContents = contents.Replace("**APIVERSION**", apiVersion).Replace("**TARGETSDKVERSION**", apiVersion);
             File.WriteAllText(filepath, newContents);
         }
 
